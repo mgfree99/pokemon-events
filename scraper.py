@@ -16,6 +16,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from webdriver_manager.chrome import ChromeDriverManager
 import hashlib
 
 # US major cities grid for 100-mile radius coverage
@@ -113,15 +114,20 @@ def create_driver():
     chrome_options.add_argument('--disable-blink-features=AutomationControlled')
     chrome_options.add_argument('--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
     
-    # Try to use Chrome/Chromium
+    # Use webdriver-manager to automatically get the correct ChromeDriver
     try:
-        driver = webdriver.Chrome(options=chrome_options)
-    except Exception as e:
-        print(f"Chrome not available, trying chromium-browser: {e}")
-        service = Service('/usr/bin/chromedriver')
+        service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
-    
-    return driver
+        return driver
+    except Exception as e:
+        print(f"Error creating driver with webdriver-manager: {e}")
+        # Fallback to system ChromeDriver
+        try:
+            driver = webdriver.Chrome(options=chrome_options)
+            return driver
+        except Exception as e2:
+            print(f"Error with system ChromeDriver: {e2}")
+            raise
 
 def get_event_id(event_data):
     """Generate unique ID for an event based on its attributes"""
