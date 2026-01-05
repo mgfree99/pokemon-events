@@ -1,3 +1,11 @@
+Hello. This was completely vibe coded using Anthropic AI's Claude Sonnet 4.5.
+
+This level of python is beyond where I am currently at, but I will be there soon.
+
+Please reach out if you have any suggestions.
+
+
+
 # Pokemon Events Locator
 
 A lightweight, user-friendly website for finding official Pokemon events across the United States. Data is automatically updated daily and hosted via GitHub Pages.
