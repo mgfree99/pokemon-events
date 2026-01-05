@@ -23,18 +23,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install selenium webdriver-manager
           
-      - name: Install Chrome and ChromeDriver
+      - name: Install Chrome and ChromeDriver (auto-matching versions)
         run: |
+          # Install Chrome
           wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
           sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
           
-          CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | cut -d '.' -f 1)
-          wget -N https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/120.0.6099.109/linux64/chromedriver-linux64.zip -P ~/
-          unzip ~/chromedriver-linux64.zip -d ~/
-          sudo mv -f ~/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver
-          sudo chmod +x /usr/local/bin/chromedriver
+          # Get Chrome version
+          CHROME_VERSION=$(google-chrome --version | awk '{print $3}')
+          echo "Chrome version: $CHROME_VERSION"
+          
+          # Install matching ChromeDriver using webdriver-manager
+          python -c "from selenium import webdriver; from selenium.webdriver.chrome.service import Service; from webdriver_manager.chrome import ChromeDriverManager; service = Service(ChromeDriverManager().install()); print('ChromeDriver installed')"
           
       - name: Run scraper
         run: |
