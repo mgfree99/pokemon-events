@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon Events Locator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .search-box {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .search-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        input[type="text"], select {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background: #0052a3;
+        }
+        
+        .info {
+            background: #e8f4fd;
+            padding: 15px;
+            border-left: 4px solid #0066cc;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-box {
+            background: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066cc;
+        }
+        
+        .events-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .event-card {
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            background: #fafafa;
+        }
+        
+        .event-card:hover {
+            background: #f5f5f5;
+            border-color: #0066cc;
+        }
+        
+        .event-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #0066cc;
+        }
+        
+        .event-detail {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
+        .event-detail strong {
+            display: inline-block;
+            width: 100px;
+            color: #666;
+        }
+        
+        .event-type {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #0066cc;
+            color: white;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .no-events {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .error {
+            background: #fee;
+            border-left: 4px solid #c00;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            color: #c00;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+            margin-top: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .search-inputs {
+                flex-direction: column;
+            }
+            
+            input[type="text"], select, button {
+                width: 100%;
+            }
+            
+            .stats {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Pokemon Events Locator</h1>
+            <p>Find official Pokemon events near you</p>
+        </header>
+        
+        <div class="search-box">
+            <div class="search-inputs">
+                <input type="text" id="searchInput" placeholder="Enter city, state, or zip code">
+                <select id="radiusSelect">
+                    <option value="25">25 miles</option>
+                    <option value="50">50 miles</option>
+                    <option value="100" selected>100 miles</option>
+                    <option value="200">200 miles</option>
+                    <option value="500">500 miles</option>
+                </select>
+                <button onclick="searchEvents()">Search</button>
+                <button onclick="showAllEvents()">Show All Events</button>
+            </div>
+            
+            <div class="info">
+                <strong>Note:</strong> Enter a city name (e.g., "Oklahoma City"), state (e.g., "Oklahoma"), or zip code. Data is updated daily.
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-box">
+                <div class="stat-label">Total Events</div>
+                <div class="stat-value" id="totalEvents">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Showing</div>
+                <div class="stat-value" id="showingEvents">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Last Updated</div>
+                <div class="stat-value" id="lastUpdated" style="font-size: 14px;">-</div>
+            </div>
+        </div>
+        
+        <div id="errorContainer"></div>
+        
+        <div class="events-container">
+            <div id="eventsContent" class="loading">Loading events...</div>
+        </div>
+        
+        <footer>
+            <p>Data sourced from events.pokemon.com • Updated daily</p>
+        </footer>
+    </div>
+    
+    <script>
+        let allEvents = [];
+        let filteredEvents = [];
+        
+        // Geocoding cache to reduce API calls
+        const geocodeCache = {};
+        
+        // Load events on page load
+        window.addEventListener('DOMContentLoaded', loadEvents);
+        
+        async function loadEvents() {
+            try {
+                const response = await fetch('events.json');
+                if (!response.ok) throw new Error('Failed to load events');
+                
+                const data = await response.json();
+                allEvents = data.events || [];
+                
+                // Update stats
+                document.getElementById('totalEvents').textContent = data.total_events || 0;
+                document.getElementById('showingEvents').textContent = allEvents.length;
+                
+                // Format last updated date
+                if (data.last_updated) {
+                    const date = new Date(data.last_updated);
+                    document.getElementById('lastUpdated').textContent = date.toLocaleDateString();
+                }
+                
+                // Display all events initially
+                displayEvents(allEvents);
+                
+            } catch (error) {
+                console.error('Error loading events:', error);
+                showError('Failed to load events. Please try again later.');
+            }
+        }
+        
+        function displayEvents(events) {
+            const container = document.getElementById('eventsContent');
+            
+            if (events.length === 0) {
+                container.innerHTML = '<div class="no-events">No events found matching your criteria.</div>';
+                return;
+            }
+            
+            let html = '';
+            events.forEach(event => {
+                html += `
+                    <div class="event-card">
+                        <div class="event-title">${escapeHtml(event.title)}</div>
+                        <div class="event-detail"><strong>Date:</strong> ${escapeHtml(event.date)}</div>
+                        <div class="event-detail"><strong>Location:</strong> ${escapeHtml(event.location)}</div>
+                        ${event.address ? `<div class="event-detail"><strong>Address:</strong> ${escapeHtml(event.address)}</div>` : ''}
+                        ${event.description ? `<div class="event-detail"><strong>Details:</strong> ${escapeHtml(event.description)}</div>` : ''}
+                        ${event.event_type ? `<span class="event-type">${escapeHtml(event.event_type)}</span>` : ''}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function showAllEvents() {
+            filteredEvents = allEvents;
+            document.getElementById('showingEvents').textContent = allEvents.length;
+            displayEvents(allEvents);
+            document.getElementById('searchInput').value = '';
+            clearError();
+        }
+        
+        async function searchEvents() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            const radius = parseInt(document.getElementById('radiusSelect').value);
+            
+            if (!searchTerm) {
+                showError('Please enter a city, state, or zip code');
+                return;
+            }
+            
+            clearError();
+            document.getElementById('eventsContent').innerHTML = '<div class="loading">Searching...</div>';
+            
+            try {
+                // Get coordinates for search term
+                const coords = await geocode(searchTerm);
+                
+                if (!coords) {
+                    showError('Location not found. Please try a different search term.');
+                    displayEvents(allEvents);
+                    return;
+                }
+                
+                // Filter events by distance
+                filteredEvents = allEvents.filter(event => {
+                    if (!event.search_lat || !event.search_lon) return false;
+                    
+                    const distance = calculateDistance(
+                        coords.lat, coords.lon,
+                        event.search_lat, event.search_lon
+                    );
+                    
+                    return distance <= radius;
+                });
+                
+                // Update showing count
+                document.getElementById('showingEvents').textContent = filteredEvents.length;
+                
+                // Display filtered events
+                displayEvents(filteredEvents);
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                showError('An error occurred while searching. Please try again.');
+                displayEvents(allEvents);
+            }
+        }
+        
+        async function geocode(location) {
+            // Check cache first
+            if (geocodeCache[location]) {
+                return geocodeCache[location];
+            }
+            
+            try {
+                // Use Nominatim (OpenStreetMap) for free geocoding
+                const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)},USA&format=json&limit=1`;
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'Pokemon Events Locator'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    const coords = {
+                        lat: parseFloat(data[0].lat),
+                        lon: parseFloat(data[0].lon)
+                    };
+                    geocodeCache[location] = coords;
+                    return coords;
+                }
+                
+                return null;
+                
+            } catch (error) {
+                console.error('Geocoding error:', error);
+                return null;
+            }
+        }
+        
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            // Haversine formula to calculate distance in miles
+            const R = 3959; // Earth's radius in miles
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                     Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+        
+        function toRad(degrees) {
+            return degrees * Math.PI / 180;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function showError(message) {
+            const container = document.getElementById('errorContainer');
+            container.innerHTML = `<div class="error">${escapeHtml(message)}</div>`;
+        }
+        
+        function clearError() {
+            document.getElementById('errorContainer').innerHTML = '';
+        }
+        
+        // Allow enter key to search
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchEvents();
+            }
+        });
+    </script>
+</body>
+</html>
